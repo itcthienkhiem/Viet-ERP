@@ -13,7 +13,7 @@ import {
   ConnectionStatus,
 } from '../types/collab';
 
-const WS_BASE = 'ws://localhost:3001/ws';
+const WS_BASE = `ws://localhost:3015/ws`;
 const RECONNECT_DELAYS = [1000, 2000, 4000, 8000, 16000, 30000]; // Exponential backoff
 const PING_INTERVAL = 30000;
 const PONG_TIMEOUT = 10000;

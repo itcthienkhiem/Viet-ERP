@@ -42,7 +42,7 @@ interface PermissionState {
   clearPermissions: (workbookId: string) => void;
 }
 
-const API_BASE = 'http://localhost:3001/api';
+const API_BASE = '/api';
 
 const ROLE_HIERARCHY: Record<WorkbookRole, number> = {
   Owner: 4,

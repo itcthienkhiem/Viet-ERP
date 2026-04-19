@@ -140,6 +140,12 @@ const nextConfig = {
   // WEBPACK OPTIMIZATION
   // ═══════════════════════════════════════════════════════════════
   webpack: (config, { dev, isServer }) => {
+    // Mock optional internal packages that may not be installed
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@prismy/sso': false,
+    }
+
     // Production optimizations only
     if (!dev && !isServer) {
       config.optimization = {

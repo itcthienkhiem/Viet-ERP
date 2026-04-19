@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "./generated/client"
 }
 
 datasource db {
@@ -85,6 +86,9 @@ enum EmailStatus {
 enum ImportStatus {
   PENDING
   PROCESSING
+  DRY_RUN
+  PREVIEWING
+  EXECUTING
   COMPLETED
   FAILED
   ROLLED_BACK
@@ -7082,175 +7086,4 @@ model CareerProfile {
 
   @@index([tenantId])
   @@map("career_profiles")
-}
-
-// ============================================================
-// MIGRATED FROM HRM (unique features not in HRM-AI)
-// TIP-005: Merge HRM + HRM-AI
-// ============================================================
-
-// ==================== KPI Management ====================
-
-enum KPIStatus {
-  DRAFT
-  PUBLISHED
-  LOCKED
-}
-
-model KPIPeriod {
-  id          String    @id @default(cuid())
-  tenantId    String    @map("tenant_id")
-  month       Int
-  year        Int
-  status      KPIStatus @default(DRAFT)
-  notes       String?
-  createdBy   String    @map("created_by")
-  publishedAt DateTime? @map("published_at")
-  lockedAt    DateTime? @map("locked_at")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-
-  tenant        Tenant     @relation(fields: [tenantId], references: [id])
-  createdByUser User       @relation("KPICreator", fields: [createdBy], references: [id])
-  scores        KPIScore[]
-
-  @@unique([tenantId, month, year])
-  @@index([tenantId])
-  @@map("kpi_periods")
-}
-
-model KPIScore {
-  id          String   @id @default(cuid())
-  tenantId    String   @map("tenant_id")
-  periodId    String   @map("period_id")
-  employeeId  String   @map("employee_id")
-  score       Decimal  @db.Decimal(5, 2)
-  kpiAmount   Decimal  @db.Decimal(15, 2)
-  notes       String?
-  enteredBy   String   @map("entered_by")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-
-  tenant   Tenant    @relation(fields: [tenantId], references: [id])
-  period   KPIPeriod @relation(fields: [periodId], references: [id])
-  employee Employee  @relation(fields: [employeeId], references: [id])
-  enterer  User      @relation("KPIEnterer", fields: [enteredBy], references: [id])
-
-  @@unique([periodId, employeeId])
-  @@index([tenantId])
-  @@map("kpi_scores")
-}
-
-// ==================== Disciplinary Records ====================
-
-model DisciplinaryRecord {
-  id         String   @id @default(cuid())
-  tenantId   String   @map("tenant_id")
-  employeeId String   @map("employee_id")
-  hrEventId  String?  @map("hr_event_id")
-  level      String
-  reason     String
-  decisionNo String?  @map("decision_no")
-  issuedBy   String   @map("issued_by")
-  issuedAt   DateTime @map("issued_at")
-  createdAt  DateTime @default(now()) @map("created_at")
-
-  tenant   Tenant   @relation(fields: [tenantId], references: [id])
-  employee Employee @relation(fields: [employeeId], references: [id])
-
-  @@index([tenantId, employeeId])
-  @@map("disciplinary_records")
-}
-
-// ==================== Salary Advance ====================
-
-enum AdvanceStatus {
-  PENDING
-  APPROVED
-  REJECTED
-  DEDUCTED
-}
-
-model SalaryAdvance {
-  id              String        @id @default(cuid())
-  tenantId        String        @map("tenant_id")
-  employeeId      String        @map("employee_id")
-  amount          Decimal       @db.Decimal(15, 2)
-  reason          String
-  requestedAt     DateTime      @default(now()) @map("requested_at")
-  approvedBy      String?       @map("approved_by")
-  approvedAt      DateTime?     @map("approved_at")
-  rejectedBy      String?       @map("rejected_by")
-  rejectionReason String?       @map("rejection_reason")
-  status          AdvanceStatus @default(PENDING)
-  deductMonth     Int?          @map("deduct_month")
-  deductYear      Int?          @map("deduct_year")
-
-  tenant   Tenant   @relation(fields: [tenantId], references: [id])
-  employee Employee @relation(fields: [employeeId], references: [id])
-  approver User?    @relation("AdvanceApprover", fields: [approvedBy], references: [id])
-
-  @@index([tenantId, employeeId])
-  @@map("salary_advances")
-}
-
-// ==================== Data Import ====================
-
-enum ImportType {
-  EMPLOYEES
-  ATTENDANCE
-  PAYROLL
-  DEPARTMENTS
-  POSITIONS
-}
-
-enum ImportStatus {
-  DRY_RUN
-  PREVIEWING
-  EXECUTING
-  COMPLETED
-  FAILED
-  ROLLED_BACK
-}
-
-model ImportSession {
-  id            String       @id @default(cuid())
-  tenantId      String       @map("tenant_id")
-  type          ImportType
-  status        ImportStatus @default(DRY_RUN)
-  fileName      String       @map("file_name")
-  fileSize      Int          @map("file_size")
-  totalRows     Int          @map("total_rows")
-  successRows   Int          @default(0) @map("success_rows")
-  errorRows     Int          @default(0) @map("error_rows")
-  mapping       Json         @default("{}")
-  errors        Json         @default("[]")
-  importedIds   Json         @default("[]") @map("imported_ids")
-  rawData       Json?        @map("raw_data")
-  metadata      Json?        @default("{}")
-  importedBy    String       @map("imported_by")
-  completedAt   DateTime?    @map("completed_at")
-  rolledBackAt  DateTime?    @map("rolled_back_at")
-  createdAt     DateTime     @default(now()) @map("created_at")
-
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
-  importer User   @relation("ImportUser", fields: [importedBy], references: [id])
-
-  @@index([tenantId])
-  @@map("import_sessions")
-}
-
-// ==================== System Settings ====================
-
-model SystemSetting {
-  key       String   @id
-  tenantId  String   @map("tenant_id")
-  value     String
-  updatedBy String?  @map("updated_by")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  tenant Tenant @relation(fields: [tenantId], references: [id])
-
-  @@unique([tenantId, key])
-  @@map("system_settings")
 }

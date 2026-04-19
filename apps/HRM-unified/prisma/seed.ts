@@ -1,8 +1,10 @@
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient } from "./generated/client"
 import bcrypt from "bcryptjs"
 import { faker } from "@faker-js/faker/locale/vi"
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({
+  datasourceUrl: process.env.DATABASE_URL,
+})
 
 // ═══════════════════════════════════════════════════════════════
 // VIETNAMESE DATA CONSTANTS

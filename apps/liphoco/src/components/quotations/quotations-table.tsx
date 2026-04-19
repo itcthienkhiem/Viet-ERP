@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { fmtDate } from '@/lib/utils';
+import { fmtDate, fmtUSD } from '@/lib/utils';
 import DataTable from '@/components/layout/data-table';
 import Badge from '@/components/ui/badge';
 
@@ -52,7 +52,7 @@ export default function QuotationsTable({ quotations }: { quotations: QuotationR
       render: (row: QuotationRow) =>
         row.sellPriceUsd ? (
           <span className="font-mono text-sm font-semibold text-green-700">
-            ${Number(row.sellPriceUsd).toLocaleString()}
+            {fmtUSD(Number(row.sellPriceUsd))}
           </span>
         ) : (
           '—'
@@ -64,7 +64,7 @@ export default function QuotationsTable({ quotations }: { quotations: QuotationR
       className: 'text-right',
       render: (row: QuotationRow) =>
         row.pricePerKgUsd ? (
-          <span className="font-mono text-xs">${Number(row.pricePerKgUsd).toFixed(2)}/kg</span>
+          <span className="font-mono text-xs">{fmtUSD(Number(row.pricePerKgUsd))}/kg</span>
         ) : (
           '—'
         ),

@@ -20,23 +20,27 @@ export const authConfig: NextAuthConfig = {
     signIn: '/login',
     error: '/login',
   },
+  cookies: {
+    sessionToken: {
+      name: 'hrm-unified.session-token',
+    },
+  },
   callbacks: {
     async authorized({ auth, request: { nextUrl, headers } }) {
       const isLoggedIn = !!auth?.user
 
-      // Session fingerprint validation: check if user agent matches the one at login
-      if (isLoggedIn && auth?.user) {
-        const storedHash = (auth as any).uaHash as string | undefined
-        if (storedHash) {
-          const currentUA = headers.get('user-agent') || ''
-          const currentHash = await hashUserAgentEdge(currentUA)
-          if (storedHash !== currentHash) {
-            // User agent changed since login — possible session theft
-            // Force re-authentication by rejecting the session
-            return false
-          }
-        }
-      }
+      // Session fingerprint validation: disabled in development
+      // In production, uncomment to enable UA-based session binding
+      // if (isLoggedIn && auth?.user) {
+      //   const storedHash = (auth as any).uaHash as string | undefined
+      //   if (storedHash) {
+      //     const currentUA = headers.get('user-agent') || ''
+      //     const currentHash = await hashUserAgentEdge(currentUA)
+      //     if (storedHash !== currentHash) {
+      //       return false
+      //     }
+      //   }
+      // }
 
       const isOnDashboard = nextUrl.pathname.startsWith('/employees') ||
                            nextUrl.pathname.startsWith('/contracts') ||

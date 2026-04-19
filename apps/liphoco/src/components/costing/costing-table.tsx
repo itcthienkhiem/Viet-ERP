@@ -1,6 +1,6 @@
 'use client';
 
-import { fmtVND, fmtDate } from '@/lib/utils';
+import { fmtVND, fmtUSD, fmtDate } from '@/lib/utils';
 import DataTable from '@/components/layout/data-table';
 
 interface CostingRow {
@@ -54,7 +54,7 @@ export default function CostingTable({ history }: { history: CostingRow[] }) {
       render: (row: CostingRow) =>
         row.sellPriceUsd ? (
           <span className="font-mono text-sm font-semibold text-green-700">
-            ${Number(row.sellPriceUsd).toLocaleString()}
+            {fmtUSD(Number(row.sellPriceUsd))}
           </span>
         ) : (
           '—'
@@ -65,7 +65,7 @@ export default function CostingTable({ history }: { history: CostingRow[] }) {
       label: '$/kg',
       className: 'text-right',
       render: (row: CostingRow) =>
-        row.pricePerKg ? <span className="font-mono text-xs">${Number(row.pricePerKg).toFixed(2)}</span> : '—',
+        row.pricePerKg ? <span className="font-mono text-xs">{fmtUSD(Number(row.pricePerKg))}</span> : '—',
     },
     {
       key: 'createdAt',

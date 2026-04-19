@@ -1,0 +1,454 @@
+// ============================================================
+// LIPHOCO ERP — Prisma Schema
+// Steel fabrication: Items, BOM, Work Orders, Quotations, Costing
+// ============================================================
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Enums ───────────────────────────────────────────────────
+
+enum ItemType {
+  raw_material
+  semi_finished
+  finished_good
+  consumable
+  service
+
+  @@map("item_type")
+}
+
+enum WorkOrderStatus {
+  draft
+  submitted
+  in_progress
+  completed
+  cancelled
+
+  @@map("work_order_status")
+}
+
+enum QuotationStatus {
+  draft
+  sent
+  negotiating
+  won
+  lost
+
+  @@map("quotation_status")
+}
+
+enum PurchaseRequestStatus {
+  draft
+  submitted
+  approved
+  ordered
+  received
+  cancelled
+
+  @@map("purchase_request_status")
+}
+
+enum CustomerStatus {
+  active
+  inactive
+  prospect
+
+  @@map("customer_status")
+}
+
+// ─── UOM ─────────────────────────────────────────────────────
+
+model Uom {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  name        String
+  category    String?  // weight, length, qty, area...
+  items       Item[]   @relation("ItemUom")
+  bomItems    BomItem[]
+
+  @@map("uoms")
+}
+
+// ─── Item Group ───────────────────────────────────────────────
+
+model ItemGroup {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  parentGroup String?  // parent group name
+  isGroup     Boolean @default(false)
+  level       Int     @default(0)
+  sortOrder   Int     @default(0)
+  parentId    String?
+  parent      ItemGroup?  @relation("GroupTree", fields: [parentId], references: [id])
+  children    ItemGroup[] @relation("GroupTree")
+  items       Item[]
+
+  @@map("item_groups")
+}
+
+// ─── Item (Vật tư) ────────────────────────────────────────────
+
+model Item {
+  id              String    @id @default(uuid())
+  itemCode        String    @unique
+  itemName        String
+  itemGroup       String
+  group           ItemGroup? @relation(fields: [itemGroup], references: [name])
+  uomCode         String    @default("kg")
+  uomRef          Uom?      @relation("ItemUom", fields: [uomCode], references: [code])
+  description     String?
+  itemType        ItemType  @default(raw_material)
+  valuationRate   Decimal   @default(0) @db.Decimal(18, 4)
+  standardRate    Decimal   @default(0) @db.Decimal(18, 4)
+
+  // Steel-specific dimensions
+  materialGrade   String?   // SS304, SS316, MS...
+  thicknessMm     Decimal?  @db.Decimal(10, 3)
+  outerDiameterMm Decimal?  @db.Decimal(10, 3)
+  widthMm         Decimal?  @db.Decimal(10, 3)
+  heightMm        Decimal?  @db.Decimal(10, 3)
+  lengthMm        Decimal?  @db.Decimal(10, 3)
+  weightPerMeter  Decimal?  @db.Decimal(10, 4)
+  weightPerUnit   Decimal?  @db.Decimal(10, 4)
+
+  hsCode          String?
+  erpCode         String?   // Link to ERP system
+
+  bomItems        BomItem[]
+  workOrders      WorkOrder[]
+  boms            Bom[]
+  quotations      Quotation[]
+  stockLedgers    StockLedger[]
+  prItems         PurchaseRequestItem[]
+
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("items")
+}
+
+// ─── Warehouse ────────────────────────────────────────────────
+
+model Warehouse {
+  id            String   @id @default(uuid())
+  code          String   @unique
+  name          String
+  warehouseType String   @default("store") // store, wip, finished
+
+  stockLedgers  StockLedger[]
+  sourceWOs     WorkOrder[] @relation("SourceWarehouse")
+  wipWOs        WorkOrder[] @relation("WipWarehouse")
+  targetWOs     WorkOrder[] @relation("TargetWarehouse")
+
+  createdAt     DateTime @default(now())
+
+  @@map("warehouses")
+}
+
+// ─── Stock Ledger ─────────────────────────────────────────────
+
+model StockLedger {
+  id          String    @id @default(uuid())
+  itemId      String
+  item        Item      @relation(fields: [itemId], references: [id])
+  warehouseId String
+  warehouse   Warehouse @relation(fields: [warehouseId], references: [id])
+  qtyChange   Decimal   @db.Decimal(18, 4)
+  rate        Decimal   @default(0) @db.Decimal(18, 4)
+  amount      Decimal   @default(0) @db.Decimal(18, 4)
+  voucherType String?   // work_order, purchase, adjustment
+  voucherId   String?
+  remarks     String?
+  createdAt   DateTime  @default(now())
+
+  @@index([itemId, warehouseId])
+  @@map("stock_ledger")
+}
+
+// ─── Operation & Workstation ──────────────────────────────────
+
+model Operation {
+  id            String         @id @default(uuid())
+  name          String         @unique
+  description   String?
+  bomOperations BomOperation[]
+  jobCards      JobCard[]
+
+  @@map("operations")
+}
+
+model Workstation {
+  id            String         @id @default(uuid())
+  name          String         @unique
+  hourRate      Decimal        @default(0) @db.Decimal(18, 4)
+  bomOperations BomOperation[]
+  jobCards      JobCard[]
+
+  @@map("workstations")
+}
+
+// ─── BOM ──────────────────────────────────────────────────────
+
+model Bom {
+  id             String         @id @default(uuid())
+  bomNo          String         @unique
+  itemId         String
+  item           Item           @relation(fields: [itemId], references: [id])
+  quantity       Decimal        @default(1) @db.Decimal(18, 4)
+  isActive       Boolean        @default(true)
+  isDefault      Boolean        @default(false)
+  withOperations Boolean        @default(true)
+  totalCost      Decimal        @default(0) @db.Decimal(18, 4)
+  companyId      String?
+
+  bomItems       BomItem[]
+  bomOperations  BomOperation[]
+  workOrders     WorkOrder[]
+
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@map("boms")
+}
+
+model BomItem {
+  id        String   @id @default(uuid())
+  bomId     String
+  bom       Bom      @relation(fields: [bomId], references: [id], onDelete: Cascade)
+  itemId    String
+  item      Item     @relation(fields: [itemId], references: [id])
+  qty       Decimal  @db.Decimal(18, 4)
+  uomCode   String   @default("kg")
+  uomRef    Uom?     @relation(fields: [uomCode], references: [code])
+  rate      Decimal  @default(0) @db.Decimal(18, 4)
+  amount    Decimal  @default(0) @db.Decimal(18, 4)
+  sortOrder Int      @default(0)
+  remarks   String?
+
+  @@map("bom_items")
+}
+
+model BomOperation {
+  id            String       @id @default(uuid())
+  bomId         String
+  bom           Bom          @relation(fields: [bomId], references: [id], onDelete: Cascade)
+  operationId   String
+  operation     Operation    @relation(fields: [operationId], references: [id])
+  workstationId String?
+  workstation   Workstation? @relation(fields: [workstationId], references: [id])
+  timeInMins    Decimal      @default(0) @db.Decimal(10, 2)
+  hourRate      Decimal      @default(0) @db.Decimal(18, 4)
+  operatingCost Decimal      @default(0) @db.Decimal(18, 4)
+  sortOrder     Int          @default(0)
+
+  @@map("bom_operations")
+}
+
+// ─── Work Order ───────────────────────────────────────────────
+
+model WorkOrder {
+  id                String          @id @default(uuid())
+  woNo              String          @unique
+  bomId             String?
+  bom               Bom?            @relation(fields: [bomId], references: [id])
+  itemId            String
+  item              Item            @relation(fields: [itemId], references: [id])
+  qtyToProduce      Decimal         @db.Decimal(18, 4)
+  qtyProduced       Decimal         @default(0) @db.Decimal(18, 4)
+  status            WorkOrderStatus @default(draft)
+  plannedStart      DateTime?
+  plannedEnd        DateTime?
+  actualStart       DateTime?
+  actualEnd         DateTime?
+  sourceWarehouseId String?
+  sourceWarehouse   Warehouse?      @relation("SourceWarehouse", fields: [sourceWarehouseId], references: [id])
+  wipWarehouseId    String?
+  wipWarehouse      Warehouse?      @relation("WipWarehouse", fields: [wipWarehouseId], references: [id])
+  targetWarehouseId String?
+  targetWarehouse   Warehouse?      @relation("TargetWarehouse", fields: [targetWarehouseId], references: [id])
+  salesOrderRef     String?
+  customerName      String?
+  companyId         String?
+  remarks           String?
+
+  jobCards          JobCard[]
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@map("work_orders")
+}
+
+// ─── Job Card ─────────────────────────────────────────────────
+
+model JobCard {
+  id            String       @id @default(uuid())
+  jobNo         String       @unique
+  workOrderId   String
+  workOrder     WorkOrder    @relation(fields: [workOrderId], references: [id])
+  operationId   String?
+  operation     Operation?   @relation(fields: [operationId], references: [id])
+  workstationId String?
+  workstation   Workstation? @relation(fields: [workstationId], references: [id])
+  employee      String?
+  workerName    String?
+  status        String       @default("open") // open, in_progress, completed
+  qtyToProduce  Decimal?     @default(0) @db.Decimal(18, 4)
+  qtyCompleted  Decimal      @default(0) @db.Decimal(18, 4)
+  timeInMins    Decimal      @default(0) @db.Decimal(10, 2)
+  startedAt     DateTime?
+  completedAt   DateTime?
+  remarks       String?
+
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@map("job_cards")
+}
+
+// ─── Customer ─────────────────────────────────────────────────
+
+model Customer {
+  id              String         @id @default(uuid())
+  code            String         @unique
+  name            String
+  country         String         @default("US")
+  currency        String         @default("USD")
+  pricingProfile  String         @default("new_customer") // new_customer, regular, vip
+  overheadPct     Decimal        @default(20) @db.Decimal(5, 2)
+  profitPct       Decimal        @default(10) @db.Decimal(5, 2)
+  primaryContact  String?
+  email           String?
+  phone           String?
+  status          CustomerStatus @default(active)
+
+  contacts        CustomerContact[]
+  quotations      Quotation[]
+  costingHistory  CostingHistory[]
+
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@map("customers")
+}
+
+model CustomerContact {
+  id         String   @id @default(uuid())
+  customerId String
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  name       String
+  role       String?
+  email      String?
+  phone      String?
+  isPrimary  Boolean  @default(false)
+
+  @@map("customer_contacts")
+}
+
+// ─── Quotation ────────────────────────────────────────────────
+
+model Quotation {
+  id                String          @id @default(uuid())
+  quoteNo           String          @unique
+  customerId        String?
+  customer          Customer?       @relation(fields: [customerId], references: [id])
+  itemId            String?
+  item              Item?           @relation(fields: [itemId], references: [id])
+  itemDescription   String?
+  quantity          Decimal?        @db.Decimal(18, 4)
+  weightPerUnit     Decimal?        @db.Decimal(10, 4)
+  totalWeight       Decimal?        @db.Decimal(18, 4)
+  productionCostVnd Decimal?        @db.Decimal(18, 4)
+  sellPriceVnd      Decimal?        @db.Decimal(18, 4)
+  sellPriceUsd      Decimal?        @db.Decimal(18, 4)
+  pricePerKgVnd     Decimal?        @db.Decimal(18, 4)
+  pricePerKgUsd     Decimal?        @db.Decimal(18, 4)
+  validUntil        DateTime?
+  notes             String?
+  costBreakdown     Json?
+  status            QuotationStatus @default(draft)
+
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@map("quotations")
+}
+
+// ─── Purchase Request ─────────────────────────────────────────
+
+model PurchaseRequest {
+  id           String                @id @default(uuid())
+  prNo         String                @unique
+  requestedBy  String                @default("Tân")
+  approvedBy   String?
+  status       PurchaseRequestStatus @default(draft)
+  workOrderRef String?
+  requiredDate DateTime?
+  remarks      String?
+
+  items        PurchaseRequestItem[]
+
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+
+  @@map("purchase_requests")
+}
+
+model PurchaseRequestItem {
+  id                String          @id @default(uuid())
+  purchaseRequestId String
+  purchaseRequest   PurchaseRequest @relation(fields: [purchaseRequestId], references: [id], onDelete: Cascade)
+  itemId            String?
+  item              Item?           @relation(fields: [itemId], references: [id])
+  itemCode          String
+  itemName          String
+  qty               Decimal         @db.Decimal(18, 4)
+  uom               String          @default("kg")
+  requiredDate      DateTime?
+  supplier          String?
+  remarks           String?
+
+  @@map("purchase_request_items")
+}
+
+// ─── Costing History ──────────────────────────────────────────
+
+model CostingHistory {
+  id               String    @id @default(uuid())
+  projectName      String?
+  customerId       String?
+  customer         Customer? @relation(fields: [customerId], references: [id])
+  itemDescription  String?
+  drawingFilePath  String?
+  totalWeightKg    Decimal?  @db.Decimal(18, 4)
+  quantity         Decimal?  @db.Decimal(18, 4)
+  surfaceFinish    String?
+
+  // Cost breakdown (VND)
+  materialCost     Decimal?  @db.Decimal(18, 4)
+  fabricationCost  Decimal?  @db.Decimal(18, 4)
+  surfaceCost      Decimal?  @db.Decimal(18, 4)
+  packagingFobCost Decimal?  @db.Decimal(18, 4)
+  productionCost   Decimal?  @db.Decimal(18, 4)
+  overhead         Decimal?  @db.Decimal(18, 4)
+  profit           Decimal?  @db.Decimal(18, 4)
+  sellPriceVnd     Decimal?  @db.Decimal(18, 4)
+  sellPriceUsd     Decimal?  @db.Decimal(18, 4)
+  pricePerKg       Decimal?  @db.Decimal(18, 4)
+  exchangeRate     Decimal   @default(24500) @db.Decimal(10, 2)
+
+  bomData          Json?
+  costBreakdown    Json?
+  pricingProfile   String?
+
+  createdAt        DateTime  @default(now())
+
+  @@map("costing_history")
+}

@@ -82,6 +82,8 @@ export default defineConfig({
     }),
   ],
   resolve: {
+    // Force single React instance to fix recharts/hooks errors in monorepo
+    dedupe: ['react', 'react-dom', 'react/jsx-runtime'],
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
@@ -131,12 +133,12 @@ export default defineConfig({
     port: 5174,
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: 'http://localhost:3015',
         changeOrigin: true,
-        timeout: 600000, // 10 minutes for large file uploads
+        timeout: 600000,
         configure: (proxy) => {
           proxy.on('error', () => {
-            // Proxy error handled silently
+            // Proxy error handled silently — app falls back to local mode
           });
         },
       },

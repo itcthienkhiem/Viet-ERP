@@ -55,7 +55,8 @@ function LoginForm() {
       })
 
       if (result?.error) {
-        setError(result.error)
+        // NextAuth v5 returns error code, not message
+        setError("Email hoặc mật khẩu không chính xác")
       } else {
         router.push(callbackUrl)
         router.refresh()
@@ -146,11 +147,11 @@ function LoginForm() {
           <div className="space-y-1.5 text-xs text-muted-foreground">
             <div className="flex justify-between">
               <span>Admin:</span>
-              <span className="font-mono">admin@demo.com / Admin@123</span>
+              <span className="font-mono">admin@demo.com / Demo@123</span>
             </div>
             <div className="flex justify-between">
               <span>HR:</span>
-              <span className="font-mono">hr@demo.com / HRManager@123</span>
+              <span className="font-mono">hr@demo.com / Demo@123</span>
             </div>
           </div>
         </div>

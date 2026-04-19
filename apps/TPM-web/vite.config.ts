@@ -20,6 +20,8 @@ export default defineConfig({
   ],
 
   resolve: {
+    // Force single React instance across all packages in monorepo
+    dedupe: ['react', 'react-dom', 'react/jsx-runtime'],
     alias: {
       '@': path.resolve(__dirname, './src'),
       '@components': path.resolve(__dirname, './src/components'),
@@ -28,6 +30,10 @@ export default defineConfig({
       '@stores': path.resolve(__dirname, './src/stores'),
       '@lib': path.resolve(__dirname, './src/lib'),
       '@types': path.resolve(__dirname, './src/types'),
+      // Force all packages to use the same React instance
+      'react': path.resolve(__dirname, './node_modules/react'),
+      'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
+      'react/jsx-runtime': path.resolve(__dirname, './node_modules/react/jsx-runtime'),
     },
   },
 
@@ -36,7 +42,7 @@ export default defineConfig({
     open: true,
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'http://localhost:3000',
+        target: 'http://localhost:3010',
         changeOrigin: true,
         secure: false,
       },
@@ -105,6 +111,6 @@ export default defineConfig({
   },
 
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', 'zustand', 'axios'],
+    include: ['react', 'react-dom', 'react/jsx-runtime', 'react-router-dom', 'zustand', 'axios'],
   },
 });

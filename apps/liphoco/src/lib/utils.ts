@@ -5,32 +5,41 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/** Format VND */
+/** Format VND — manual format to avoid server/client locale diff */
 export function fmtVND(amount: number | null | undefined): string {
   if (amount == null) return '—';
-  return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+  const rounded = Math.round(amount);
+  const parts = rounded.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  return parts + ' ₫';
 }
 
 /** Format USD */
 export function fmtUSD(amount: number | null | undefined): string {
   if (amount == null) return '—';
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount);
+  const fixed = amount.toFixed(2);
+  const [int, dec] = fixed.split('.');
+  const intFormatted = int.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return '$' + intFormatted + '.' + dec;
 }
 
-/** Format number with Vietnamese locale */
+/** Format number */
 export function fmtNum(n: number | null | undefined, decimals = 0): string {
   if (n == null) return '—';
-  return new Intl.NumberFormat('vi-VN', {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  }).format(n);
+  const fixed = n.toFixed(decimals);
+  const [int, dec] = fixed.split('.');
+  const intFormatted = int.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  return dec !== undefined ? intFormatted + '.' + dec : intFormatted;
 }
 
-/** Format date dd/MM/yyyy */
+/** Format date dd/MM/yyyy — manual format to avoid server/client locale diff */
 export function fmtDate(d: Date | string | null | undefined): string {
   if (!d) return '—';
   const date = typeof d === 'string' ? new Date(d) : d;
-  return date.toLocaleDateString('vi-VN');
+  if (isNaN(date.getTime())) return '—';
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const yyyy = date.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
 }
 
 /** Status badge color map */

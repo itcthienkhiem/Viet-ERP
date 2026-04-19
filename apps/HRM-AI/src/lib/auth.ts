@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import { db } from './db'
 import { authConfig } from './auth.config'
-import type { UserRole } from '@prisma/client'
+import type { UserRole } from '../../prisma/generated/client'
 
 /**
  * Full auth configuration with Credentials provider
@@ -56,7 +56,13 @@ function getSSOProvider() {
   if (process.env.ENABLE_SUPABASE_SSO !== 'true') return []
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) return []
 
-  const { createSupabaseSSOProvider } = require('@prismy/sso')
+  // @prismy/sso is an optional internal package — skip if not available
+  let createSupabaseSSOProvider: any
+  try {
+    createSupabaseSSOProvider = require('@prismy/sso').createSupabaseSSOProvider
+  } catch {
+    return []
+  }
 
   return [createSupabaseSSOProvider({
     appId: 'hrm' as const,

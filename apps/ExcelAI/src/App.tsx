@@ -83,10 +83,7 @@ import './components/Print/Print.css';
 import './components/Sparklines/Sparklines.css';
 
 function App() {
-  const [showLanding, setShowLanding] = useState(() => {
-    // Check localStorage to see if user has entered app before
-    return localStorage.getItem('ai-suite-entered') !== 'true';
-  });
+  const [showLanding, setShowLanding] = useState(false); // Skip landing — go straight to app
   const [isInitializing, setIsInitializing] = useState(true);
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [showPrintPreview, setShowPrintPreview] = useState(false);
@@ -175,7 +172,7 @@ function App() {
 
   // Initialize audit log + crash recovery journal
   useEffect(() => {
-    auditLog.init().then(() => {
+    (auditLog.init() || Promise.resolve()).then(() => {
       auditLog.logSystem('app.start', 'Application initialized');
     });
 
@@ -199,7 +196,7 @@ function App() {
       }
     );
 
-    crashRecovery.init().then(() => {
+    (crashRecovery.init() || Promise.resolve()).then(() => {
       crashRecovery.cleanup();
     });
 

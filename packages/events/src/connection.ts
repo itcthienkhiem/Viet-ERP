@@ -87,6 +87,11 @@ export async function ensureStreams(): Promise<void> {
     { name: 'VIERP_INVOICES', subjects: ['vierp.invoice.>'] },
     { name: 'VIERP_ACCOUNTING', subjects: ['vierp.accounting.>'] },
     { name: 'VIERP_SUPPLIERS', subjects: ['vierp.supplier.>'] },
+    // Module-specific streams
+    { name: 'VIERP_CRM', subjects: ['vierp.crm.>'] },
+    { name: 'VIERP_HRM', subjects: ['vierp.hrm.>'] },
+    { name: 'VIERP_MRP', subjects: ['vierp.mrp.>'] },
+    { name: 'VIERP_ECOMMERCE', subjects: ['vierp.ecommerce.>'] },
   ];
 
   for (const stream of streams) {

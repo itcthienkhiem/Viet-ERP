@@ -12,7 +12,9 @@
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "bridge": "tsx src/bridge/index.ts",
+    "bridge:dev": "tsx watch src/bridge/index.ts"
   },
   "dependencies": {
     "nats": "^2.19.0",

@@ -3,15 +3,15 @@
 import { motion } from "framer-motion";
 import ScrollReveal from "./ScrollReveal";
 import CircuitBackground from "./CircuitBackground";
-import { Code, Shield, Globe, Workflow, Cloud, Users } from "lucide-react";
+import { Brain, Shield, Globe, Workflow, Cloud, Users } from "lucide-react";
 
 const features = [
-  { icon: Code, title: "Open Source", desc: "Mã nguồn mở 100%, MIT License. Fork, customize, deploy tự do. 1.4 triệu dòng mã TypeScript.", color: "#22c55e" },
-  { icon: Shield, title: "Enterprise Security", desc: "Rate limiting, CORS, CSRF, input sanitization, security headers. Audit trail cho mọi thao tác.", color: "#8b5cf6" },
+  { icon: Brain, title: "AI-Native Copilot", desc: "Claude AI tích hợp sâu vào mọi module. Tự động phân tích dữ liệu, gợi ý quyết định, tạo báo cáo thông minh.", color: "#22c55e" },
+  { icon: Shield, title: "Enterprise Security", desc: "RBAC 11 roles × 37 quyền, Rate limiting, CORS, CSRF, input sanitization. Audit trail toàn bộ thao tác.", color: "#8b5cf6" },
   { icon: Globe, title: "Vietnam-First", desc: "Tuân thủ VAS TT200, hoá đơn điện tử NĐ123, BHXH/BHYT/BHTN, VietQR, tích hợp 20+ ngân hàng VN.", color: "#06b6d4" },
   { icon: Workflow, title: "Event-Driven", desc: "NATS JetStream cho inter-module communication. 25 typed event schemas, real-time sync giữa các modules.", color: "#f59e0b" },
-  { icon: Cloud, title: "Multi-Cloud Ready", desc: "Terraform cho AWS (EKS), GCP (GKE), Azure (AKS). Helm charts, Docker, CI/CD GitHub Actions.", color: "#ec4899" },
-  { icon: Users, title: "Developer Experience", desc: "TypeScript strict, Turborepo, Prisma ORM, Playwright E2E. npm run setup chạy mọi nơi.", color: "#5e6ad2" },
+  { icon: Cloud, title: "Multi-Cloud Ready", desc: "Triển khai trên AWS, GCP, Azure. Kubernetes, Docker, CI/CD tự động. SLA 99.9% uptime.", color: "#ec4899" },
+  { icon: Users, title: "Multi-tenant SaaS", desc: "Kiến trúc multi-tenant, phân tách dữ liệu hoàn toàn. 3 gói: Basic, Pro, Enterprise — scale theo nhu cầu.", color: "#5e6ad2" },
 ];
 
 export default function Features() {
@@ -26,7 +26,7 @@ export default function Features() {
             <span className="text-text-tertiary">Kiến trúc chuẩn doanh nghiệp.</span>
           </h2>
           <p className="text-[14px] text-text-tertiary leading-[1.7]">
-            16 modules chia sẻ 27 shared packages, kiến trúc microservices, event-driven, multi-tenant.
+            14 modules chia sẻ 19 shared packages, kiến trúc microservices, event-driven, multi-tenant SaaS.
           </p>
         </ScrollReveal>
 

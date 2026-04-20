@@ -30,7 +30,7 @@ export default function Hero() {
               transition={{ duration: 0.5, delay: 0.3 }}
               className="text-[12px] md:text-[11px] text-white/60 tracking-[0.15em] uppercase mb-4 md:mb-5 font-medium"
             >
-              Nền tảng ERP Mã nguồn mở cho Việt Nam
+              Nền tảng ERP AI-Native cho Doanh nghiệp Việt Nam
             </motion.p>
 
             <motion.h1
@@ -42,7 +42,7 @@ export default function Hero() {
               <span className="text-white">Nền tảng </span>
               <span className="vierp-logo text-[1.1em]"><span className="viet-text">Việt</span><span className="erp-text"><span className="erp-e">E</span><span className="erp-r">R</span><span className="erp-p">P</span></span></span>
               <br />
-              <span className="text-white/50">Mã nguồn mở.</span>
+              <span className="text-white/50">Toàn diện. Thông minh.</span>
             </motion.h1>
 
             <motion.p
@@ -51,7 +51,7 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 0.55 }}
               className="text-[15px] md:text-[17px] text-text-secondary leading-[1.7] mb-6 md:mb-8 max-w-[480px]"
             >
-              16 modules ERP cho doanh nghiệp Việt Nam. Tuân thủ VAS TT200, hoá đơn điện tử NĐ123, BHXH/BHYT. 1.4 triệu dòng mã TypeScript.
+              14 modules ERP tích hợp AI cho doanh nghiệp Việt Nam. Tuân thủ VAS TT200, hoá đơn điện tử NĐ123, BHXH/BHYT. Triển khai nhanh, vận hành ngay.
             </motion.p>
 
             <motion.div
@@ -60,8 +60,8 @@ export default function Hero() {
               transition={{ duration: 0.5, delay: 0.65 }}
               className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 mb-8 md:mb-10"
             >
-              <a href="https://github.com/nclamvn/Viet-ERP" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 sharp-button text-white px-6 py-3.5 md:py-3 text-[15px] md:text-[14px] font-medium min-h-[48px]">
-                Fork trên GitHub
+              <a href="https://demo.vierp.dev" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 sharp-button text-white px-6 py-3.5 md:py-3 text-[15px] md:text-[14px] font-medium min-h-[48px]">
+                Dùng thử miễn phí
               </a>
               <a href="#modules" className="inline-flex items-center gap-1.5 text-[15px] md:text-[14px] text-text-secondary hover:text-text-primary transition-colors font-medium group min-h-[48px]">
                 Khám phá Modules
@@ -76,9 +76,9 @@ export default function Hero() {
               className="flex items-baseline gap-6 md:gap-8 flex-wrap"
             >
               {[
-                { value: "16", label: "Modules" },
-                { value: "1.4M+", label: "Dòng mã" },
-                { value: "980", label: "Models" },
+                { value: "14", label: "Modules" },
+                { value: "2,500+", label: "Doanh nghiệp" },
+                { value: "99.9%", label: "Uptime SLA" },
               ].map((stat) => (
                 <div key={stat.label} className="flex items-baseline gap-1.5 md:gap-2">
                   <span className="text-[22px] md:text-[24px] font-bold text-white tracking-[-0.02em]">{stat.value}</span>

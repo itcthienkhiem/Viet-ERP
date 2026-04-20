@@ -85,12 +85,16 @@ export default function Navbar() {
 
           <a href="#features" className="text-[13px] text-text-secondary hover:text-text-primary transition-colors duration-200">Tính năng</a>
           <a href="#customers" className="text-[13px] text-text-secondary hover:text-text-primary transition-colors duration-200">Khách hàng</a>
-          <a href="https://github.com/nclamvn/Viet-ERP" target="_blank" rel="noopener noreferrer" className="text-[13px] text-text-secondary hover:text-text-primary transition-colors duration-200">GitHub</a>
+          <a href="#pricing" className="text-[13px] text-text-secondary hover:text-text-primary transition-colors duration-200">Bảng giá</a>
+          <a href="#contact" className="text-[13px] text-text-secondary hover:text-text-primary transition-colors duration-200">Liên hệ</a>
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <a href="https://github.com/nclamvn/Viet-ERP" target="_blank" rel="noopener noreferrer" className="text-[13px] sharp-button px-4 py-[7px] font-medium">
-            Fork miễn phí
+          <a href="mailto:sales@vierp.dev" className="text-[13px] text-text-secondary hover:text-text-primary transition-colors duration-200 px-3 py-[7px]">
+            Liên hệ tư vấn
+          </a>
+          <a href="https://demo.vierp.dev" target="_blank" rel="noopener noreferrer" className="text-[13px] sharp-button px-4 py-[7px] font-medium">
+            Dùng thử miễn phí
           </a>
         </div>
 
@@ -121,9 +125,11 @@ export default function Navbar() {
               <div className="border-t border-border mt-3 pt-3">
                 <a href="#features" className="block py-2 text-[14px] text-text-secondary hover:text-text-primary" onClick={() => setMobileOpen(false)}>Tính năng</a>
                 <a href="#customers" className="block py-2 text-[14px] text-text-secondary hover:text-text-primary" onClick={() => setMobileOpen(false)}>Khách hàng</a>
+                <a href="#pricing" className="block py-2 text-[14px] text-text-secondary hover:text-text-primary" onClick={() => setMobileOpen(false)}>Bảng giá</a>
+                <a href="#contact" className="block py-2 text-[14px] text-text-secondary hover:text-text-primary" onClick={() => setMobileOpen(false)}>Liên hệ</a>
               </div>
-              <a href="https://github.com/nclamvn/Viet-ERP" target="_blank" rel="noopener noreferrer" className="mt-3 text-[13px] sharp-button px-4 py-2.5 text-center font-medium">
-                Fork miễn phí trên GitHub
+              <a href="https://demo.vierp.dev" target="_blank" rel="noopener noreferrer" className="mt-3 text-[13px] sharp-button px-4 py-2.5 text-center font-medium">
+                Dùng thử miễn phí
               </a>
             </div>
           </motion.div>

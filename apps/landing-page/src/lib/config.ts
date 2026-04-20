@@ -1,12 +1,16 @@
 export const config = {
   appUrl: process.env.NEXT_PUBLIC_APP_URL || 'https://vierp.dev',
-  githubUrl: 'https://github.com/nclamvn/Viet-ERP',
   email: {
-    hello: 'lam.nguyen@vierp.dev',
+    hello: 'hello@vierp.dev',
     support: 'support@vierp.dev',
+    sales: 'sales@vierp.dev',
   },
   social: {
-    github: 'https://github.com/nclamvn/Viet-ERP',
     linkedin: 'https://linkedin.com/company/vierp',
+    youtube: 'https://youtube.com/@vierp',
+  },
+  demo: {
+    url: 'https://demo.vierp.dev',
+    calendly: 'https://calendly.com/vierp/demo',
   },
 } as const;

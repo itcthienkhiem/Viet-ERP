@@ -11,14 +11,13 @@ const beVietnamPro = Be_Vietnam_Pro({
 export const metadata: Metadata = {
   metadataBase: new URL("https://vierp.dev"),
   title: {
-    default: "VietERP - Nền tảng ERP mã nguồn mở cho doanh nghiệp Việt Nam",
+    default: "VietERP - Nền tảng ERP cho doanh nghiệp Việt Nam",
     template: "%s | VietERP",
   },
   description:
-    "Nền tảng ERP mã nguồn mở toàn diện cho doanh nghiệp Việt Nam. 14 modules: HRM, CRM, MRP, Accounting, Ecommerce, TPM, OTB — tuân thủ VAS TT200, NĐ123, BHXH.",
+    "Nền tảng ERP toàn diện cho doanh nghiệp Việt Nam. 14 modules: HRM, CRM, MRP, Accounting, Ecommerce, TPM, OTB — tuân thủ VAS TT200, NĐ123, BHXH. AI-Native, SaaS.",
   keywords: [
     "ERP",
-    "open source",
     "Vietnam",
     "HRM",
     "CRM",
@@ -26,7 +25,9 @@ export const metadata: Metadata = {
     "Accounting",
     "quản lý doanh nghiệp",
     "phần mềm kế toán",
-    "mã nguồn mở",
+    "phần mềm ERP",
+    "SaaS",
+    "AI",
   ],
   authors: [{ name: "VietERP" }],
   creator: "VietERP",
@@ -36,9 +37,9 @@ export const metadata: Metadata = {
     alternateLocale: "en_US",
     url: "https://vierp.dev",
     siteName: "VietERP",
-    title: "VietERP - Nền tảng ERP mã nguồn mở cho doanh nghiệp Việt Nam",
+    title: "VietERP - Nền tảng ERP cho doanh nghiệp Việt Nam",
     description:
-      "14 modules ERP cho doanh nghiệp Việt Nam. Tuân thủ VAS, hoá đơn điện tử, BHXH. Mã nguồn mở, miễn phí.",
+      "14 modules ERP cho doanh nghiệp Việt Nam. Tuân thủ VAS, hoá đơn điện tử, BHXH. AI-Native, Multi-tenant SaaS.",
   },
   robots: {
     index: true,

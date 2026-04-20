@@ -198,6 +198,24 @@ export async function PATCH(
         deal: { title: deal.title, value: Number(deal.value) },
         timestamp: new Date().toISOString(),
       }).catch(() => {})
+
+      // Publish to NATS for inter-module flows (CRM → Accounting invoice)
+      const { publishNATS } = await import('@/lib/nats-publisher')
+      publishNATS('vierp.crm.deal.won', {
+        dealId: deal.id,
+        dealDescription: deal.title,
+        customerId: deal.companyId || deal.contactId || deal.id,
+        customerName: deal.company?.name || deal.contact?.name || 'Unknown',
+        customerEmail: deal.contact?.email || '',
+        amount: Number(deal.value || 0),
+        currency: 'VND',
+        products: deal.products?.map((p: any) => ({
+          name: p.name,
+          quantity: p.quantity || 1,
+          unitPrice: Number(p.price || 0),
+          lineTotal: Number(p.price || 0) * (p.quantity || 1),
+        })) || [],
+      }, { userId: session?.user?.id }).catch(() => {})
     }
 
     return NextResponse.json(deal)

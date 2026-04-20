@@ -78,6 +78,44 @@ export async function POST(
     },
   })
 
+  // 3b. Publish to NATS for inter-module flows (HRM → Accounting journal entry)
+  try {
+    const { publishNATS } = await import("@/lib/nats-publisher")
+    const employees = await prisma.employeePayroll.findMany({
+      where: { periodId },
+      include: { employee: { include: { department: true } } },
+    })
+    publishNATS("vierp.employee.payroll.processed", {
+      payrollId: periodId,
+      payrollNumber: `PAY-${period.year}-${String(period.month).padStart(2, "0")}`,
+      payrollPeriod: {
+        startDate: new Date(period.year, period.month - 1, 1).toISOString(),
+        endDate: new Date(period.year, period.month, 0).toISOString(),
+      },
+      paymentDate: paidAt.toISOString(),
+      currency: "VND",
+      approvedBy: session.user.id,
+      totalGrossSalary: employees.reduce((s, e) => s + Number(e.grossSalary || 0), 0),
+      totalNetSalary: employees.reduce((s, e) => s + Number(e.netSalary || 0), 0),
+      totalIncomeTax: employees.reduce((s, e) => s + Number(e.incomeTax || 0), 0),
+      totalSocialContributions: employees.reduce((s, e) =>
+        s + Number(e.socialInsurance || 0) + Number(e.healthInsurance || 0) + Number(e.unemploymentInsurance || 0), 0),
+      employees: employees.map((e) => ({
+        employeeId: e.employeeId,
+        employeeName: e.employee?.fullName || "",
+        department: e.employee?.department?.name || "GENERAL",
+        grossSalary: Number(e.grossSalary || 0),
+        netSalary: Number(e.netSalary || 0),
+        incomeTax: Number(e.incomeTax || 0),
+        socialInsurance: Number(e.socialInsurance || 0),
+        healthInsurance: Number(e.healthInsurance || 0),
+        unemploymentInsurance: Number(e.unemploymentInsurance || 0),
+      })),
+    }, { userId: session.user.id }).catch(() => {})
+  } catch {
+    // Non-blocking
+  }
+
   // 4. Notify HR_STAFF
   try {
     const staffUsers = await prisma.user.findMany({

@@ -24,7 +24,9 @@
     "db:seed": "turbo run db:seed",
     "docker:up": "docker compose up -d",
     "docker:down": "docker compose down",
-    "db:migrate": "turbo run db:generate && turbo run db:push"
+    "db:migrate": "turbo run db:generate && turbo run db:push",
+    "bridge": "tsx packages/events/src/bridge/index.ts",
+    "bridge:dev": "tsx watch packages/events/src/bridge/index.ts"
   },
   "lint-staged": {
     "*.{ts,tsx}": ["eslint --fix", "prettier --write"],

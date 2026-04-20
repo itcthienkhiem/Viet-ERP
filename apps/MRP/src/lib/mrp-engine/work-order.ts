@@ -124,7 +124,7 @@ export async function updateWorkOrderStatus(
     }
   }
 
-  return prisma.workOrder.update({
+  const workOrder = await prisma.workOrder.update({
     where: { id: workOrderId },
     data: updateData,
     include: {
@@ -132,4 +132,29 @@ export async function updateWorkOrderStatus(
       allocations: { include: { part: true } },
     },
   });
+
+  // Publish to NATS when production is completed (MRP → Inventory update)
+  if (normalizedStatus === "COMPLETED") {
+    try {
+      const { publish } = await import('@vierp/events/publisher');
+      publish('vierp.production.completed', {
+        productionOrderId: workOrder.id,
+        productionOrderNumber: workOrder.workOrderNumber,
+        productId: workOrder.productId,
+        productName: workOrder.product?.name || '',
+        producedQuantity: completedQty || workOrder.completedQty || 0,
+        scrapQuantity: scrapQty || workOrder.scrapQty || 0,
+        completedDate: new Date().toISOString(),
+        warehouseId: 'MAIN_WAREHOUSE',
+      }, {
+        tenantId: 'default',
+        userId: 'system',
+        source: 'mrp',
+      }).catch(() => {});
+    } catch {
+      // Non-blocking
+    }
+  }
+
+  return workOrder;
 }

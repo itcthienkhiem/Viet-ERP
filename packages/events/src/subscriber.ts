@@ -114,6 +114,11 @@ function resolveStreamName(subject: string): string {
     'vierp.invoice': 'VIERP_INVOICES',
     'vierp.accounting': 'VIERP_ACCOUNTING',
     'vierp.supplier': 'VIERP_SUPPLIERS',
+    // Module-specific
+    'vierp.crm': 'VIERP_CRM',
+    'vierp.hrm': 'VIERP_HRM',
+    'vierp.mrp': 'VIERP_MRP',
+    'vierp.ecommerce': 'VIERP_ECOMMERCE',
   };
 
   // Match subject prefix to stream
